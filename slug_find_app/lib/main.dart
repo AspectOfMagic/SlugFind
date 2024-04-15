@@ -37,6 +37,7 @@ class _MyAppState extends State<MyApp> {
                   IconButton(
                     onPressed: () {
                       searchHistory.add(controller.text);
+                      searchHistory = searchHistory.reversed.toSet().toList();
                       controller.closeView(controller.text);
                     }, 
                     icon: const Icon(Icons.search)

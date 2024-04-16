@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,6 +16,12 @@ class _MyAppState extends State<MyApp> {
   bool isDark = false;
   var searchHistory = [];
   final SearchController controller = SearchController();
+  late GoogleMapController mapController;
+  final LatLng _center = const LatLng(36.9905, -122.0584);
+  
+  void _onMapCreated(GoogleMapController mapcontroller) {
+      mapController = mapcontroller;
+   }
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +34,28 @@ class _MyAppState extends State<MyApp> {
       theme: themeData,
       home: Scaffold(
         appBar: AppBar(title: const Text('SlugFind')),
-        body: Column(
+        body: Stack(
           children: <Widget>[ 
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: GoogleMap(
+                onMapCreated: _onMapCreated,
+                initialCameraPosition: CameraPosition(
+                  target: _center,
+                  zoom: 15,
+                ),
+                markers: {
+                  const Marker(
+                    markerId: MarkerId("UCSC"),
+                    position: LatLng(36.99, -122.058),
+                    infoWindow: InfoWindow(
+                      title: "University of California, Santa Cruz",
+                      snippet: "Go Slugs",
+                    ),
+                  )
+                }
+              )
+            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: SearchAnchor(

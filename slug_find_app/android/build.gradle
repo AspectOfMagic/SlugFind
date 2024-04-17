@@ -16,3 +16,14 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        //maven { url 'https://github.com/google/secrets-gradle-plugin' }  // Add the specific URL here
+    }
+    dependencies {
+        //classpath 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.1'
+    }
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +22,25 @@ class _MyAppState extends State<MyApp> {
   
   void _onMapCreated(GoogleMapController mapcontroller) {
       mapController = mapcontroller;
-   }
+  }
+
+  void _updateLocationFromSearch(String search) async {
+    try {
+      List<Location> locations = await locationFromAddress(search);
+      if (locations.isNotEmpty) {
+        mapController.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(locations[0].latitude, locations[0].longitude),
+              zoom: 15,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Failed to find location: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +85,7 @@ class _MyAppState extends State<MyApp> {
                       searchHistory.add(controller.text);
                       searchHistory = searchHistory.reversed.toSet().toList();
                       controller.closeView(controller.text);
+                      _updateLocationFromSearch(controller.text);
                     }, 
                     icon: const Icon(Icons.search)
                   ),

@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
           CameraUpdate.newCameraPosition(
             CameraPosition(
               target: LatLng(locations[0].latitude, locations[0].longitude),
-              zoom: 15,
+              zoom: 19,
             ),
           ),
         );

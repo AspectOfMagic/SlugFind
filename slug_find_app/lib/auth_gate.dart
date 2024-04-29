@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'home.dart';
+
 
 class AuthGate extends StatelessWidget {
  const AuthGate({super.key});
@@ -22,7 +22,7 @@ class AuthGate extends StatelessWidget {
                padding: const EdgeInsets.all(20),
                child: AspectRatio(
                  aspectRatio: 1,
-                 child: Image.asset('assets/slug1.jpg'),
+                 child: Image.asset('assets/slug2.jpeg'),
                ),
              );
            },

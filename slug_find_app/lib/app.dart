@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'auth_gate.dart';
 
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 

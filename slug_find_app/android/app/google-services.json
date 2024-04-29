@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "87410351152",
+    "project_id": "slugfind-2024",
+    "storage_bucket": "slugfind-2024.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:87410351152:android:974400b9baddaec1f9a1f5",
+        "android_client_info": {
+          "package_name": "com.example.slug_find_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAY34VEcavy6psyEeGakt7jB-0AP0Snf-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

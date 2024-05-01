@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-
+import 'request.dart';
+import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,6 +20,12 @@ class _HomeScreenState extends State<HomeScreen> {
   
   void _onMapCreated(GoogleMapController mapcontroller) {
       mapController = mapcontroller;
+  }
+
+  void _sendtoServer(String input) async {
+    var data = await putMarker(Uri.http('127.0.0.1:8090', 'marker'), jsonEncode({'user-input': input}));
+    var decodedData = jsonDecode(data);
+    print(decodedData['message']);
   }
 
   void _updateLocationFromSearch(String search) async {
@@ -111,6 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       searchHistory = searchHistory.reversed.toSet().toList();
                       controller.closeView(controller.text);
                       _updateLocationFromSearch(controller.text);
+                      _sendtoServer(controller.text);
                     }, 
                     icon: const Icon(Icons.search)
                   ),

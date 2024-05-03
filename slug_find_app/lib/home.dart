@@ -8,7 +8,8 @@ import 'dart:convert';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-    State<HomeScreen> createState() => _HomeScreenState();
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
 }
   
 class _HomeScreenState extends State<HomeScreen> {
@@ -48,64 +49,73 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('SlugFind'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute<ProfileScreen>(
-                  builder: (context) => ProfileScreen(
-                    appBar: AppBar(
-                      title: const Text('User Profile'),
-                    ),
-                    actions: [
-                      SignedOutAction((context) {
-                        Navigator.of(context).pop();
-                      })
-                    ],
-                    children: [
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.all(2),
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: Image.asset('assets/slug1.jpg'),
-                        ),
+    final ThemeData themeData = ThemeData(
+      useMaterial3: true,
+      brightness: isDark ? Brightness.dark : Brightness.light
+    );
+    return MaterialApp(
+      theme: themeData,
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('SlugFind'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.person),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<ProfileScreen>(
+                    builder: (context) => Theme( 
+                      data: ThemeData(
+                        useMaterial3: true,
+                        brightness: isDark ? Brightness.dark : Brightness.light
                       ),
-                    ],
+                      child: ProfileScreen(
+                        appBar: AppBar(
+                          title: const Text('User Profile'),
+                        ),
+                        actions: [
+                          SignedOutAction((context) {
+                            Navigator.of(context).pop();
+                          })
+                        ],
+                        children: [
+                          const Divider(),
+                          Padding(
+                            padding: const EdgeInsets.all(2),
+                            child: AspectRatio(
+                              aspectRatio: 1,
+                              child: Image.asset('assets/slug1.jpg'),
+                            ),
+                          ),
+                        ],
+                      )
+                    )
                   ),
-                ),
-              );
-            },
-          )
-        ],
-        automaticallyImplyLeading: false,
-      ),
+                );
+              },
+            )
+          ],
+          automaticallyImplyLeading: false,
+        ),
         body: Stack(
           children: <Widget>[ 
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: GoogleMap(
-                onMapCreated: _onMapCreated,
-                initialCameraPosition: CameraPosition(
-                  target: _center,
-                  zoom: 15,
-                ),
-                markers: {
-                  const Marker(
-                    markerId: MarkerId("UCSC"),
-                    position: LatLng(36.99, -122.058),
-                    infoWindow: InfoWindow(
-                      title: "University of California, Santa Cruz",
-                      snippet: "Go Slugs",
-                    ),
-                  )
-                }
-              )
+            GoogleMap(
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: CameraPosition(
+              target: _center,
+                zoom: 15,
+              ),
+              markers: {
+                const Marker(
+                  markerId: MarkerId("UCSC"),
+                  position: LatLng(36.99, -122.058),
+                  infoWindow: InfoWindow(
+                    title: "University of California, Santa Cruz",
+                    snippet: "Go Slugs",
+                  ),
+                )
+              }
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -114,11 +124,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 viewTrailing: [
                   IconButton(
                     onPressed: () {
-                      searchHistory.add(controller.text);
-                      searchHistory = searchHistory.reversed.toSet().toList();
-                      controller.closeView(controller.text);
-                      _updateLocationFromSearch(controller.text);
-                      _sendtoServer(controller.text);
+                        searchHistory.add(controller.text);
+                        searchHistory = searchHistory.reversed.toSet().toList();
+                        controller.closeView(controller.text);
+                        _updateLocationFromSearch(controller.text);
                     }, 
                     icon: const Icon(Icons.search)
                   ),
@@ -179,8 +188,9 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           ]
         )
-      );
-    }
+      )
+    );
   }
+}
 
 

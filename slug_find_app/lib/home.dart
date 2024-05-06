@@ -198,6 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       target: _center,
                       zoom: currentZoom,
                     ),
+                    zoomControlsEnabled: false,
                     compassEnabled: true,
                     tiltGesturesEnabled: false,
                     onLongPress: (latlang) {

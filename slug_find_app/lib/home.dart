@@ -20,9 +20,29 @@ class _HomeScreenState extends State<HomeScreen> {
   final SearchController controller = SearchController();
   late GoogleMapController mapController;
   final LatLng _center = const LatLng(36.9905, -122.0584);
+  double currentZoom = 15;
+
 
   void _onMapCreated(GoogleMapController mapcontroller) {
     mapController = mapcontroller;
+  }
+
+  void _zoomIn() {
+    setState(() {
+      currentZoom += 1;
+      mapController.animateCamera(
+        CameraUpdate.zoomTo(currentZoom),
+      );
+    });
+  }
+
+  void _zoomOut() {
+    setState(() {
+      currentZoom -= 1;
+      mapController.animateCamera(
+        CameraUpdate.zoomTo(currentZoom),
+      );
+    });
   }
 
   void _sendtoServer(String input) async {
@@ -176,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onMapCreated: _onMapCreated,
                     initialCameraPosition: CameraPosition(
                       target: _center,
-                      zoom: 15,
+                      zoom: currentZoom,
                     ),
                     compassEnabled: true,
                     tiltGesturesEnabled: false,
@@ -185,6 +205,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     markers: Set<Marker>.of(markers.values),
                   )),
+              Positioned(
+                right: 10,
+                bottom: 100,
+                child: Column(
+                  children: <Widget>[
+                    FloatingActionButton(
+                      onPressed: _zoomIn,
+                      child: const Icon(Icons.zoom_in),
+                    ),
+                    const SizedBox(height: 10),
+                    FloatingActionButton(
+                      onPressed: _zoomOut,
+                      child: const Icon(Icons.zoom_out),
+                    ),
+                  ],
+                ),
+              ),
               Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: SearchAnchor(

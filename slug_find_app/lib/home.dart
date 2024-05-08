@@ -4,6 +4,10 @@ import 'package:geocoding/geocoding.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'request.dart';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+
 
 Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
@@ -25,6 +29,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onMapCreated(GoogleMapController mapcontroller) {
     mapController = mapcontroller;
+
+    loadMarkers().then((loadedMarkers) {
+      setState(() {
+        markers = loadedMarkers;
+      });
+    });
   }
 
   void _zoomIn() {
@@ -122,22 +132,98 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await popup();
 
     if (result != null) {
-      final MarkerId markerId = MarkerId("Random_ID");
+      final String title = result['title'] ?? 'Default Title';
+      final String snippet = result['snippet'] ?? 'No additional info';
+
+      final MarkerId markerId = MarkerId(latlang.toString());
       Marker marker = Marker(
         markerId: markerId,
         draggable: true,
         position: latlang,
         infoWindow: InfoWindow(
-          title: result['title'],
-          snippet: result['snippet'],
+          title: title,
+          snippet: snippet,
         ),
         icon: BitmapDescriptor.defaultMarker,
+        onTap: () => _showMarkerDetails(markerId, title, snippet),
+
       );
 
       setState(() {
         markers[markerId] = marker;
       });
+
+      saveMarker(latlang, title, snippet);
     }
+  }
+
+  void _showMarkerDetails(MarkerId markerId, String title, String snippet) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(snippet),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              deleteMarker(markerId);
+            },
+            child: Text('Delete'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> deleteMarker(MarkerId markerId) async {
+    await FirebaseFirestore.instance.collection('markers').doc(markerId.value).delete();
+    setState(() {
+      markers.remove(markerId);
+    });
+  }
+
+  Future<void> saveMarker(LatLng position, String title, String snippet) async {
+    var firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null) {
+      CollectionReference markers = FirebaseFirestore.instance.collection('markers');
+      await markers.add({
+        'latitude': position.latitude,
+        'longitude': position.longitude,
+        'title': title,
+        'snippet': snippet,
+        'userId': firebaseUser.uid,
+      });
+    }
+  }
+
+  Future<Map<MarkerId, Marker>> loadMarkers() async {
+    CollectionReference markersCollection = FirebaseFirestore.instance.collection('markers');
+    QuerySnapshot querySnapshot = await markersCollection.get();
+
+    Map<MarkerId, Marker> loadedMarkers = {};
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      final markerId = MarkerId(doc.id);
+      final data = doc.data() as Map<String, dynamic>;
+
+      loadedMarkers[markerId] = Marker(
+        markerId: markerId,
+        position: LatLng(data['latitude'], data['longitude']),
+        infoWindow: InfoWindow(
+          title: data['title'] ?? 'Untitled',
+          snippet: data['snippet'] ?? '',
+        ),
+        icon: BitmapDescriptor.defaultMarker,
+        onTap: () {
+          _showMarkerDetails(markerId, data['title'], data['snippet']);
+        },
+      );
+    }
+    return loadedMarkers;
   }
 
   @override
@@ -211,11 +297,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   children: <Widget>[
                     FloatingActionButton(
+                      heroTag: 'zoomInButton',
                       onPressed: _zoomIn,
                       child: const Icon(Icons.zoom_in),
                     ),
                     const SizedBox(height: 10),
                     FloatingActionButton(
+                      heroTag: 'zoomOutButton',
                       onPressed: _zoomOut,
                       child: const Icon(Icons.zoom_out),
                     ),

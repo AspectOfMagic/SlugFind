@@ -199,6 +199,11 @@ class _HomeScreenState extends State<HomeScreen> {
         'userId': firebaseUser.uid,
       });
     }
+    loadMarkers().then((loadedMarkers) {
+      setState(() {
+        markers = loadedMarkers;
+      });
+    });
   }
 
   Future<Map<MarkerId, Marker>> loadMarkers() async {

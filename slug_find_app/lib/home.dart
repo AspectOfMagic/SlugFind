@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late GoogleMapController mapController;
   final LatLng _center = const LatLng(36.9905, -122.0584);
   double currentZoom = 15;
-
+  MarkerId markedId = const MarkerId('empty');
 
   void _onMapCreated(GoogleMapController mapcontroller) {
     mapController = mapcontroller;
@@ -55,12 +55,57 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _markMarker(MarkerId id, Marker marker) {
+    if (markedId != const MarkerId('empty')) {
+      Marker? selectedMarker = markers[markedId];
+      if (selectedMarker != null) {
+        markers[markedId] = selectedMarker.copyWith(
+          iconParam: BitmapDescriptor.defaultMarker,
+        );
+      }
+    }
+    
+    Marker updatedMarker = marker.copyWith(
+      iconParam: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+    );
+
+    markedId = id;
+    markers[id] = updatedMarker;
+    
+    setState(() {});
+  }
+  
+  void _zoomInOnMarker(Marker marker) async {
+    await mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: marker.position,
+          zoom: 17,
+        ),
+      ),
+    );
+  }
+
+  bool _checkMarkers(String key) {
+    for (var entry in markers.entries) {
+      var marker = entry.value;
+      if (marker.infoWindow.title == key) {
+        _markMarker(entry.key, marker);
+        _zoomInOnMarker(marker);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /*
   void _sendtoServer(String input) async {
     var data = await putMarker(Uri.http('127.0.0.1:8090', 'marker'),
         jsonEncode({'user-input': input}));
     var decodedData = jsonDecode(data);
     print(decodedData['message']);
   }
+  */
 
   void _updateLocationFromSearch(String search) async {
     try {
@@ -70,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
           CameraUpdate.newCameraPosition(
             CameraPosition(
               target: LatLng(locations[0].latitude, locations[0].longitude),
-              zoom: 19,
+              zoom: 17,
             ),
           ),
         );
@@ -282,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             body: Stack(children: <Widget>[
               Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
+                  padding: const EdgeInsets.only(bottom: 0),
                   child: GoogleMap(
                     onMapCreated: _onMapCreated,
                     initialCameraPosition: CameraPosition(
@@ -324,10 +369,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         IconButton(
                             onPressed: () {
                               searchHistory.add(controller.text);
-                              searchHistory =
-                                  searchHistory.reversed.toSet().toList();
+                              searchHistory = searchHistory.reversed.toSet().toList();
                               controller.closeView(controller.text);
-                              _updateLocationFromSearch(controller.text);
+                              if (!_checkMarkers(controller.text)) {
+                                _updateLocationFromSearch(controller.text);
+                              }
                             },
                             icon: const Icon(Icons.search)),
                         IconButton(

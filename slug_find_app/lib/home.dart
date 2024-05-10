@@ -110,19 +110,52 @@ class _HomeScreenState extends State<HomeScreen> {
   void _updateLocationFromSearch(String search) async {
     try {
       List<Location> locations = await locationFromAddress(search);
+      const double minLatitude = 36.9791;
+      const double maxLatitude = 37.0039;
+      const double minLongitude = -122.0733;
+      const double maxLongitude = -122.0377;
+
       if (locations.isNotEmpty) {
-        mapController.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(
-              target: LatLng(locations[0].latitude, locations[0].longitude),
-              zoom: 17,
+
+        double latitude = locations[0].latitude;
+        double longitude = locations[0].longitude;
+
+        if (latitude >= minLatitude && latitude <= maxLatitude && longitude >= minLongitude && longitude <= maxLongitude) {
+          mapController.animateCamera(
+            CameraUpdate.newCameraPosition(
+              CameraPosition(
+                target: LatLng(latitude, longitude),
+                zoom: 17,
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          _showDialog(context, "Location is outside of the UCSC campus. Please try again.");
+        }
       }
     } catch (e) {
       print('Failed to find location: $e');
     }
+  }
+
+  void _showDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Notification"),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<Map<String, String>?> popup() async {

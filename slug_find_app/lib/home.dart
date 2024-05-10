@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
@@ -109,7 +111,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _updateLocationFromSearch(String search) async {
     try {
-      List<Location> locations = await locationFromAddress(search);
+      
+      String searchStr = search;
+
+      if (searchStr.isNotEmpty) {
+        searchStr = searchStr + " UCSC";
+      }
+
+      List<Location> locations = await locationFromAddress(searchStr);
       const double minLatitude = 36.9791;
       const double maxLatitude = 37.0039;
       const double minLongitude = -122.0733;

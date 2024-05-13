@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
@@ -8,7 +7,6 @@ import 'request.dart';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 
 
 Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
@@ -78,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
   
   void _zoomInOnMarker(Marker marker) async {
-    await mapController.animateCamera(
+    await mapController.moveCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: marker.position,
@@ -86,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+    currentZoom = 17;
   }
 
   bool _checkMarkers(String key) {
@@ -130,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
         double longitude = locations[0].longitude;
 
         if (latitude >= minLatitude && latitude <= maxLatitude && longitude >= minLongitude && longitude <= maxLongitude) {
-          mapController.animateCamera(
+          mapController.moveCamera(
             CameraUpdate.newCameraPosition(
               CameraPosition(
                 target: LatLng(latitude, longitude),
@@ -138,6 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           );
+          currentZoom = 17;
         } else {
           _showDialog(context, "Location is outside of the UCSC campus. Please try again.");
         }

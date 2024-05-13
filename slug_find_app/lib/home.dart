@@ -245,26 +245,46 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showMarkerDetails(MarkerId markerId, String title, String snippet) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(snippet),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              deleteMarker(markerId);
-            },
-            child: Text('Delete'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('Cancel'),
-          ),
-        ],
-      ),
-    );
+    getUserIdForMarker(markerId).then((userId) {
+      bool canDelete = FirebaseAuth.instance.currentUser?.uid == userId;
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(title),
+          content: Text(snippet),
+          actions: <Widget>[
+            if (canDelete) 
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  deleteMarker(markerId);
+                },       
+                child: Text('Delete'),
+              ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancel'),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Future<String?> getUserIdForMarker(MarkerId markerId) async {
+    try {
+      DocumentSnapshot markerDocument = await FirebaseFirestore.instance
+          .collection('markers')
+          .doc(markerId.value)
+          .get();
+      if (markerDocument.exists) {
+        Map<String, dynamic>? data = markerDocument.data() as Map<String, dynamic>?;
+        return data?['userId'] as String?;
+      }
+    } catch (e) {
+      print('Error fetching user ID: $e');
+    }
+    return null;
   }
 
   Future<void> deleteMarker(MarkerId markerId) async {

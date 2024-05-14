@@ -8,7 +8,6 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
 Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
 class HomeScreen extends StatefulWidget {
@@ -26,15 +25,28 @@ class _HomeScreenState extends State<HomeScreen> {
   final LatLng _center = const LatLng(36.9905, -122.0584);
   double currentZoom = 15;
   MarkerId markedId = const MarkerId('empty');
+  bool _showGlobalMarkers = false;
 
-  void _onMapCreated(GoogleMapController mapcontroller) {
-    mapController = mapcontroller;
-
-    loadMarkers().then((loadedMarkers) {
+  @override
+  void initState() {
+    super.initState();
+    loadMarkers(_showGlobalMarkers).then((loadedMarkers) {
       setState(() {
         markers = loadedMarkers;
       });
     });
+  }
+
+  Future<void> _loadMarkers() async {
+    final loadedMarkers = await loadMarkers(_showGlobalMarkers);
+    setState(() {
+      markers = loadedMarkers;
+    });
+  }
+
+  void _onMapCreated(GoogleMapController mapcontroller) {
+    mapController = mapcontroller;
+    _loadMarkers();
   }
 
   void _zoomIn() {
@@ -64,17 +76,18 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     }
-    
+
     Marker updatedMarker = marker.copyWith(
-      iconParam: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      iconParam:
+          BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
     );
 
     markedId = id;
     markers[id] = updatedMarker;
-    
+
     setState(() {});
   }
-  
+
   void _zoomInOnMarker(Marker marker) async {
     await mapController.moveCamera(
       CameraUpdate.newCameraPosition(
@@ -110,7 +123,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _updateLocationFromSearch(String search) async {
     try {
-      
       String searchStr = search;
 
       if (searchStr.isNotEmpty) {
@@ -124,12 +136,14 @@ class _HomeScreenState extends State<HomeScreen> {
       const double maxLongitude = -122.0377;
 
       if (locations.isNotEmpty) {
-
         double latitude = locations[0].latitude;
         double longitude = locations[0].longitude;
 
-        if (latitude >= minLatitude && latitude <= maxLatitude && longitude >= minLongitude && longitude <= maxLongitude) {
-          mapController.moveCamera(
+        if (latitude >= minLatitude &&
+            latitude <= maxLatitude &&
+            longitude >= minLongitude &&
+            longitude <= maxLongitude) {
+          mapController.animateCamera(
             CameraUpdate.newCameraPosition(
               CameraPosition(
                 target: LatLng(latitude, longitude),
@@ -139,7 +153,8 @@ class _HomeScreenState extends State<HomeScreen> {
           );
           currentZoom = 17;
         } else {
-          _showDialog(context, "Location is outside of the UCSC campus. Please try again.");
+          _showDialog(context,
+              "Location is outside of the UCSC campus. Please try again.");
         }
       }
     } catch (e) {
@@ -233,7 +248,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         icon: BitmapDescriptor.defaultMarker,
         onTap: () => _showMarkerDetails(markerId, title, snippet),
-
       );
 
       setState(() {
@@ -253,12 +267,12 @@ class _HomeScreenState extends State<HomeScreen> {
           title: Text(title),
           content: Text(snippet),
           actions: <Widget>[
-            if (canDelete) 
+            if (canDelete)
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                   deleteMarker(markerId);
-                },       
+                },
                 child: Text('Delete'),
               ),
             TextButton(
@@ -278,7 +292,8 @@ class _HomeScreenState extends State<HomeScreen> {
           .doc(markerId.value)
           .get();
       if (markerDocument.exists) {
-        Map<String, dynamic>? data = markerDocument.data() as Map<String, dynamic>?;
+        Map<String, dynamic>? data =
+            markerDocument.data() as Map<String, dynamic>?;
         return data?['userId'] as String?;
       }
     } catch (e) {
@@ -288,7 +303,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> deleteMarker(MarkerId markerId) async {
-    await FirebaseFirestore.instance.collection('markers').doc(markerId.value).delete();
+    await FirebaseFirestore.instance
+        .collection('markers')
+        .doc(markerId.value)
+        .delete();
     setState(() {
       markers.remove(markerId);
     });
@@ -297,7 +315,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> saveMarker(LatLng position, String title, String snippet) async {
     var firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
-      CollectionReference markers = FirebaseFirestore.instance.collection('markers');
+      CollectionReference markers =
+          FirebaseFirestore.instance.collection('markers');
       await markers.add({
         'latitude': position.latitude,
         'longitude': position.longitude,
@@ -306,17 +325,21 @@ class _HomeScreenState extends State<HomeScreen> {
         'userId': firebaseUser.uid,
       });
     }
-    loadMarkers().then((loadedMarkers) {
+    loadMarkers(_showGlobalMarkers).then((loadedMarkers) {
       setState(() {
         markers = loadedMarkers;
       });
     });
   }
 
-  Future<Map<MarkerId, Marker>> loadMarkers() async {
-    CollectionReference markersCollection = FirebaseFirestore.instance.collection('markers');
-    QuerySnapshot querySnapshot = await markersCollection.get();
-
+  Future<Map<MarkerId, Marker>> loadMarkers(bool isGlobal) async {
+    CollectionReference markersCollection =
+        FirebaseFirestore.instance.collection('markers');
+    Query query = isGlobal
+        ? markersCollection
+        : markersCollection.where('userId',
+            isEqualTo: FirebaseAuth.instance.currentUser?.uid);
+    QuerySnapshot querySnapshot = await query.get();
     Map<MarkerId, Marker> loadedMarkers = {};
     for (QueryDocumentSnapshot doc in querySnapshot.docs) {
       final markerId = MarkerId(doc.id);
@@ -349,6 +372,20 @@ class _HomeScreenState extends State<HomeScreen> {
             appBar: AppBar(
               title: const Text('SlugFind'),
               actions: [
+                Row(
+                  children: [
+                    Text(_showGlobalMarkers ? 'Global' : 'Local'),
+                    Switch(
+                      value: _showGlobalMarkers,
+                      onChanged: (value) {
+                        setState(() {
+                          _showGlobalMarkers = value;
+                          _loadMarkers();
+                        });
+                      },
+                    ),
+                  ],
+                ),
                 IconButton(
                   icon: const Icon(Icons.person),
                   onPressed: () {
@@ -431,7 +468,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         IconButton(
                             onPressed: () {
                               searchHistory.add(controller.text);
-                              searchHistory = searchHistory.reversed.toSet().toList();
+                              searchHistory =
+                                  searchHistory.reversed.toSet().toList();
                               controller.closeView(controller.text);
                               if (!_checkMarkers(controller.text)) {
                                 _updateLocationFromSearch(controller.text);

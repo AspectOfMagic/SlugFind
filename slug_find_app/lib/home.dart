@@ -20,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool isDark = false;
   var searchHistory = [];
+  List<String> allSuggestions = [];
   final SearchController controller = SearchController();
   late GoogleMapController mapController;
   final LatLng _center = const LatLng(36.9905, -122.0584);
@@ -33,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     loadMarkers(_showGlobalMarkers).then((loadedMarkers) {
       setState(() {
         markers = loadedMarkers;
+        allSuggestions = markers.values.map((marker) => marker.infoWindow.title).whereType<String>().toList();
       });
     });
   }
@@ -41,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final loadedMarkers = await loadMarkers(_showGlobalMarkers);
     setState(() {
       markers = loadedMarkers;
+      allSuggestions = markers.values.map((marker) => marker.infoWindow.title).whereType<String>().toList();
     });
   }
 
@@ -328,6 +331,7 @@ class _HomeScreenState extends State<HomeScreen> {
     loadMarkers(_showGlobalMarkers).then((loadedMarkers) {
       setState(() {
         markers = loadedMarkers;
+        allSuggestions = markers.values.map((marker) => marker.infoWindow.title).whereType<String>().toList();
       });
     });
   }
@@ -468,8 +472,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         IconButton(
                             onPressed: () {
                               searchHistory.add(controller.text);
-                              searchHistory =
-                                  searchHistory.reversed.toSet().toList();
+                              searchHistory = searchHistory.reversed.toSet().toList();
                               controller.closeView(controller.text);
                               if (!_checkMarkers(controller.text)) {
                                 _updateLocationFromSearch(controller.text);
@@ -513,18 +516,44 @@ class _HomeScreenState extends State<HomeScreen> {
                             ]);
                       },
                       suggestionsBuilder:
-                          (BuildContext context, SearchController controller) {
-                        return List<ListTile>.generate(searchHistory.length,
-                            (index) {
-                          final item = searchHistory[index];
-                          return ListTile(
-                              title: Text(item),
-                              onTap: () {
-                                setState(() {
-                                  controller.closeView(item);
-                                });
-                              });
-                        });
+                        (BuildContext context, SearchController controller) {
+                          List<String> filteredSuggestions = [];
+                          String query = controller.text.toLowerCase();
+                          if (query.isNotEmpty) {
+                            filteredSuggestions = allSuggestions.where((suggestion) =>
+                            suggestion.toLowerCase().contains(query)).toList();
+                            return List<ListTile>.generate(
+                              filteredSuggestions.length,
+                              (index) {
+                                final item = filteredSuggestions[index];
+                                return ListTile(
+                                  title: Text(item),
+                                  onTap: () {
+                                    searchHistory.add(item);
+                                    searchHistory = searchHistory.reversed.toSet().toList();
+                                    controller.closeView(item);
+                                    _checkMarkers(item);
+                                  }
+                                );
+                              }
+                            );
+                          } else {
+                            return List<ListTile>.generate(
+                              searchHistory.length,
+                              (index) {
+                                final item = searchHistory[index];
+                                return ListTile(
+                                  title: Text(item),
+                                  onTap: () {
+                                    searchHistory.add(item);
+                                    searchHistory = searchHistory.reversed.toSet().toList();
+                                    controller.closeView(item);
+                                    _checkMarkers(item);
+                                  }
+                                );
+                              }
+                            );
+                          }
                       }))
             ])));
   }

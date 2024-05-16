@@ -234,30 +234,43 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future _addMarkerLongPressed(LatLng latlang) async {
-    final result = await popup();
+    const double minLatitude = 36.9791;
+    const double maxLatitude = 37.0039;
+    const double minLongitude = -122.0733;
+    const double maxLongitude = -122.0377;
 
-    if (result != null) {
-      final String title = result['title'] ?? 'Default Title';
-      final String snippet = result['snippet'] ?? 'No additional info';
+    if (latlang.latitude >= minLatitude &&
+        latlang.latitude <= maxLatitude &&
+        latlang.longitude >= minLongitude &&
+        latlang.longitude <= maxLongitude) {
+      final result = await popup();
 
-      final MarkerId markerId = MarkerId(latlang.toString());
-      Marker marker = Marker(
-        markerId: markerId,
-        draggable: true,
-        position: latlang,
-        infoWindow: InfoWindow(
-          title: title,
-          snippet: snippet,
-        ),
-        icon: BitmapDescriptor.defaultMarker,
-        onTap: () => _showMarkerDetails(markerId, title, snippet),
-      );
+      if (result != null) {
+        final String title = result['title'] ?? 'Default Title';
+        final String snippet = result['snippet'] ?? 'No additional info';
 
-      setState(() {
-        markers[markerId] = marker;
-      });
+        final MarkerId markerId = MarkerId(latlang.toString());
+        Marker marker = Marker(
+          markerId: markerId,
+          draggable: true,
+          position: latlang,
+          infoWindow: InfoWindow(
+            title: title,
+            snippet: snippet,
+          ),
+          icon: BitmapDescriptor.defaultMarker,
+          onTap: () => _showMarkerDetails(markerId, title, snippet),
+        );
 
-      saveMarker(latlang, title, snippet);
+        setState(() {
+          markers[markerId] = marker;
+        });
+
+        saveMarker(latlang, title, snippet);
+      }
+    } else {
+      _showDialog(context,
+          "Marker location is outside of the UCSC campus. Please try again.");
     }
   }
 

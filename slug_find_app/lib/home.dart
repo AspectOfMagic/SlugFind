@@ -34,7 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
     loadMarkers(_showGlobalMarkers).then((loadedMarkers) {
       setState(() {
         markers = loadedMarkers;
-        allSuggestions = markers.values.map((marker) => marker.infoWindow.title).whereType<String>().toList();
+        allSuggestions = markers.values
+            .map((marker) => marker.infoWindow.title)
+            .whereType<String>()
+            .toList();
       });
     });
   }
@@ -43,7 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final loadedMarkers = await loadMarkers(_showGlobalMarkers);
     setState(() {
       markers = loadedMarkers;
-      allSuggestions = markers.values.map((marker) => marker.infoWindow.title).whereType<String>().toList();
+      allSuggestions = markers.values
+          .map((marker) => marker.infoWindow.title)
+          .whereType<String>()
+          .toList();
     });
   }
 
@@ -133,10 +139,10 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       List<Location> locations = await locationFromAddress(searchStr);
-      const double minLatitude = 36.9791;
+      const double minLatitude = 36.9772;
       const double maxLatitude = 37.0039;
-      const double minLongitude = -122.0733;
-      const double maxLongitude = -122.0377;
+      const double minLongitude = -122.0703;
+      const double maxLongitude = -122.049;
 
       if (locations.isNotEmpty) {
         double latitude = locations[0].latitude;
@@ -234,10 +240,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future _addMarkerLongPressed(LatLng latlang) async {
-    const double minLatitude = 36.9791;
+    const double minLatitude = 36.9772;
     const double maxLatitude = 37.0039;
-    const double minLongitude = -122.0733;
-    const double maxLongitude = -122.0377;
+    const double minLongitude = -122.0703;
+    const double maxLongitude = -122.049;
 
     if (latlang.latitude >= minLatitude &&
         latlang.latitude <= maxLatitude &&
@@ -344,7 +350,10 @@ class _HomeScreenState extends State<HomeScreen> {
     loadMarkers(_showGlobalMarkers).then((loadedMarkers) {
       setState(() {
         markers = loadedMarkers;
-        allSuggestions = markers.values.map((marker) => marker.infoWindow.title).whereType<String>().toList();
+        allSuggestions = markers.values
+            .map((marker) => marker.infoWindow.title)
+            .whereType<String>()
+            .toList();
       });
     });
   }
@@ -485,7 +494,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         IconButton(
                             onPressed: () {
                               searchHistory.add(controller.text);
-                              searchHistory = searchHistory.reversed.toSet().toList();
+                              searchHistory =
+                                  searchHistory.reversed.toSet().toList();
                               controller.closeView(controller.text);
                               if (!_checkMarkers(controller.text)) {
                                 _updateLocationFromSearch(controller.text);
@@ -529,44 +539,42 @@ class _HomeScreenState extends State<HomeScreen> {
                             ]);
                       },
                       suggestionsBuilder:
-                        (BuildContext context, SearchController controller) {
-                          List<String> filteredSuggestions = [];
-                          String query = controller.text.toLowerCase();
-                          if (query.isNotEmpty) {
-                            filteredSuggestions = allSuggestions.where((suggestion) =>
-                            suggestion.toLowerCase().contains(query)).toList();
-                            return List<ListTile>.generate(
-                              filteredSuggestions.length,
+                          (BuildContext context, SearchController controller) {
+                        List<String> filteredSuggestions = [];
+                        String query = controller.text.toLowerCase();
+                        if (query.isNotEmpty) {
+                          filteredSuggestions = allSuggestions
+                              .where((suggestion) =>
+                                  suggestion.toLowerCase().contains(query))
+                              .toList();
+                          return List<ListTile>.generate(
+                              filteredSuggestions.length, (index) {
+                            final item = filteredSuggestions[index];
+                            return ListTile(
+                                title: Text(item),
+                                onTap: () {
+                                  searchHistory.add(item);
+                                  searchHistory =
+                                      searchHistory.reversed.toSet().toList();
+                                  controller.closeView(item);
+                                  _checkMarkers(item);
+                                });
+                          });
+                        } else {
+                          return List<ListTile>.generate(searchHistory.length,
                               (index) {
-                                final item = filteredSuggestions[index];
-                                return ListTile(
-                                  title: Text(item),
-                                  onTap: () {
-                                    searchHistory.add(item);
-                                    searchHistory = searchHistory.reversed.toSet().toList();
-                                    controller.closeView(item);
-                                    _checkMarkers(item);
-                                  }
-                                );
-                              }
-                            );
-                          } else {
-                            return List<ListTile>.generate(
-                              searchHistory.length,
-                              (index) {
-                                final item = searchHistory[index];
-                                return ListTile(
-                                  title: Text(item),
-                                  onTap: () {
-                                    searchHistory.add(item);
-                                    searchHistory = searchHistory.reversed.toSet().toList();
-                                    controller.closeView(item);
-                                    _checkMarkers(item);
-                                  }
-                                );
-                              }
-                            );
-                          }
+                            final item = searchHistory[index];
+                            return ListTile(
+                                title: Text(item),
+                                onTap: () {
+                                  searchHistory.add(item);
+                                  searchHistory =
+                                      searchHistory.reversed.toSet().toList();
+                                  controller.closeView(item);
+                                  _checkMarkers(item);
+                                });
+                          });
+                        }
                       }))
             ])));
   }

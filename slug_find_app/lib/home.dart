@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
@@ -18,6 +19,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _isDarkMode = false;
+  String? _darkMapStyle;
+  String? _lightMapStyle;
   bool isDark = false;
   var searchHistory = [];
   List<String> allSuggestions = [];
@@ -31,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _loadMapStyles();
     loadMarkers(_showGlobalMarkers).then((loadedMarkers) {
       setState(() {
         markers = loadedMarkers;
@@ -40,6 +45,11 @@ class _HomeScreenState extends State<HomeScreen> {
             .toList();
       });
     });
+  }
+
+  Future<void> _loadMapStyles() async {
+    _darkMapStyle = await rootBundle.loadString('assets/dark_map_style.json');
+    _lightMapStyle = await rootBundle.loadString('assets/light_map_style.json');
   }
 
   Future<void> _loadMarkers() async {
@@ -53,9 +63,23 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // Future<void> _loadMapStyles() async {
+  //   _darkMapStyle = await rootBundle.loadString('assets/dark_map_style.json');
+  //   _lightMapStyle = await rootBundle.loadString('assets/light_map_style.json');
+  // }
+
   void _onMapCreated(GoogleMapController mapcontroller) {
     mapController = mapcontroller;
+    _setMapStyle();
     _loadMarkers();
+  }
+
+  void _setMapStyle() {
+    if (isDark && _darkMapStyle != null) {
+      mapController.setMapStyle(_darkMapStyle);
+    } else if (!isDark && _lightMapStyle != null) {
+      mapController.setMapStyle(_lightMapStyle);
+    }
   }
 
   void _zoomIn() {
@@ -534,6 +558,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     onPressed: () {
                                       setState(() {
                                         isDark = !isDark;
+                                        _setMapStyle();
                                       });
                                     },
                                     icon: const Icon(Icons.wb_sunny_outlined),

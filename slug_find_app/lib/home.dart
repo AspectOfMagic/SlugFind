@@ -240,22 +240,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future _addMarkerLongPressed(LatLng latlang) async {
-    const double minLatitude = 36.9772;
-    const double maxLatitude = 37.0039;
-    const double minLongitude = -122.0703;
-    const double maxLongitude = -122.049;
+  const double minLatitude = 36.9772;
+  const double maxLatitude = 37.0039;
+  const double minLongitude = -122.0703;
+  const double maxLongitude = -122.049;
 
-    if (latlang.latitude >= minLatitude &&
-        latlang.latitude <= maxLatitude &&
-        latlang.longitude >= minLongitude &&
-        latlang.longitude <= maxLongitude) {
-      final result = await popup();
+  if (latlang.latitude >= minLatitude &&
+      latlang.latitude <= maxLatitude &&
+      latlang.longitude >= minLongitude &&
+      latlang.longitude <= maxLongitude) {
+    final result = await popup();
 
-      if (result != null) {
-        final String title = result['title'] ?? 'Default Title';
-        final String snippet = result['snippet'] ?? 'No additional info';
+    if (result != null) {
+      final String title = result['title'] ?? 'Default Title';
+      final String snippet = result['snippet'] ?? 'No additional info';
+      final MarkerId markerId = MarkerId(latlang.toString());
+      bool markerExists = markers.values.any((marker) => marker.infoWindow.title == title);
 
-        final MarkerId markerId = MarkerId(latlang.toString());
+      if (!markerExists) {
         Marker marker = Marker(
           markerId: markerId,
           draggable: true,
@@ -273,12 +275,14 @@ class _HomeScreenState extends State<HomeScreen> {
         });
 
         saveMarker(latlang, title, snippet);
+      } else {
+        _showDialog(context, "A marker with that name already exists. Please try again.");
       }
-    } else {
-      _showDialog(context,
-          "Marker location is outside of the UCSC campus. Please try again.");
     }
+  } else {
+    _showDialog(context, "Marker location is outside of the UCSC campus. Please try again.");
   }
+}
 
   void _showMarkerDetails(MarkerId markerId, String title, String snippet) {
     getUserIdForMarker(markerId).then((userId) {

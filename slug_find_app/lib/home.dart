@@ -255,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final String title = result['title'] ?? 'Default Title';
       final String snippet = result['snippet'] ?? 'No additional info';
       final MarkerId markerId = MarkerId(latlang.toString());
-      bool markerExists = markers.values.any((marker) => marker.infoWindow.title == title);
+      bool markerExists = markers.values.any((marker) => (marker.infoWindow.title?.toLowerCase() ?? '') == (title?.toLowerCase() ?? ''));
 
       if (!markerExists) {
         Marker marker = Marker(

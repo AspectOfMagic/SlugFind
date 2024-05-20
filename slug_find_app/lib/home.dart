@@ -475,7 +475,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     padding: const EdgeInsets.all(2),
                                     child: AspectRatio(
                                       aspectRatio: 1,
-                                      child: Image.asset('assets/slug1.jpg'),
+                                      child: Image.asset(
+                                        isDark ? 'assets/slugmap1BLACK.png' : 'assets/slug1.jpg',
+                                      ),
                                     ),
                                   ),
                                 ],

@@ -65,6 +65,7 @@ flutter:
   assets:
     - assets/slug1.jpg
     - assets/slug2.jpeg
+    - assets/slugmap1BLACK.png
     - assets/dark_map_style.json
     - assets/light_map_style.json
 

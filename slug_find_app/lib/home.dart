@@ -264,49 +264,53 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future _addMarkerLongPressed(LatLng latlang) async {
-  const double minLatitude = 36.9772;
-  const double maxLatitude = 37.0039;
-  const double minLongitude = -122.0703;
-  const double maxLongitude = -122.049;
+    const double minLatitude = 36.9772;
+    const double maxLatitude = 37.0039;
+    const double minLongitude = -122.0703;
+    const double maxLongitude = -122.049;
 
-  if (latlang.latitude >= minLatitude &&
-      latlang.latitude <= maxLatitude &&
-      latlang.longitude >= minLongitude &&
-      latlang.longitude <= maxLongitude) {
-    final result = await popup();
+    if (latlang.latitude >= minLatitude &&
+        latlang.latitude <= maxLatitude &&
+        latlang.longitude >= minLongitude &&
+        latlang.longitude <= maxLongitude) {
+      final result = await popup();
 
-    if (result != null) {
-      final String title = result['title'] ?? 'Default Title';
-      final String snippet = result['snippet'] ?? 'No additional info';
-      final MarkerId markerId = MarkerId(latlang.toString());
-      bool markerExists = markers.values.any((marker) => (marker.infoWindow.title?.toLowerCase() ?? '') == (title?.toLowerCase() ?? ''));
+      if (result != null) {
+        final String title = result['title'] ?? 'Default Title';
+        final String snippet = result['snippet'] ?? 'No additional info';
+        final MarkerId markerId = MarkerId(latlang.toString());
+        bool markerExists = markers.values.any((marker) =>
+            (marker.infoWindow.title?.toLowerCase() ?? '') ==
+            (title?.toLowerCase() ?? ''));
 
-      if (!markerExists) {
-        Marker marker = Marker(
-          markerId: markerId,
-          draggable: true,
-          position: latlang,
-          infoWindow: InfoWindow(
-            title: title,
-            snippet: snippet,
-          ),
-          icon: BitmapDescriptor.defaultMarker,
-          onTap: () => _showMarkerDetails(markerId, title, snippet),
-        );
+        if (!markerExists) {
+          Marker marker = Marker(
+            markerId: markerId,
+            draggable: true,
+            position: latlang,
+            infoWindow: InfoWindow(
+              title: title,
+              snippet: snippet,
+            ),
+            icon: BitmapDescriptor.defaultMarker,
+            onTap: () => _showMarkerDetails(markerId, title, snippet),
+          );
 
-        setState(() {
-          markers[markerId] = marker;
-        });
+          setState(() {
+            markers[markerId] = marker;
+          });
 
-        saveMarker(latlang, title, snippet);
-      } else {
-        _showDialog(context, "A marker with that name already exists. Please try again.");
+          saveMarker(latlang, title, snippet);
+        } else {
+          _showDialog(context,
+              "A marker with that name already exists. Please try again.");
+        }
       }
+    } else {
+      _showDialog(context,
+          "Marker location is outside of the UCSC campus. Please try again.");
     }
-  } else {
-    _showDialog(context, "Marker location is outside of the UCSC campus. Please try again.");
   }
-}
 
   void _showMarkerDetails(MarkerId markerId, String title, String snippet) {
     getUserIdForMarker(markerId).then((userId) {
@@ -398,6 +402,8 @@ class _HomeScreenState extends State<HomeScreen> {
     for (QueryDocumentSnapshot doc in querySnapshot.docs) {
       final markerId = MarkerId(doc.id);
       final data = doc.data() as Map<String, dynamic>;
+      final userId = data['userId'] as String?;
+      final isCurrentUser = userId == FirebaseAuth.instance.currentUser?.uid;
 
       loadedMarkers[markerId] = Marker(
         markerId: markerId,
@@ -406,7 +412,9 @@ class _HomeScreenState extends State<HomeScreen> {
           title: data['title'] ?? 'Untitled',
           snippet: data['snippet'] ?? '',
         ),
-        icon: BitmapDescriptor.defaultMarker,
+        icon: isCurrentUser
+            ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue)
+            : BitmapDescriptor.defaultMarker,
         onTap: () {
           _showMarkerDetails(markerId, data['title'], data['snippet']);
         },

@@ -31,6 +31,15 @@ class _HomeScreenState extends State<HomeScreen> {
   double currentZoom = 15;
   MarkerId markedId = const MarkerId('empty');
   bool _showGlobalMarkers = false;
+  final List<String> developerIds = [
+    'QEUR6jvclhQUysCKuYGGSCxckLi2',
+    'developerUid2',
+    'developerUid3',
+    'developerUid4',
+    'developerUid5'
+  ];
+  bool isDeveloper = false;
+  List<Map<String, dynamic>> reports = [];
 
   @override
   void initState() {
@@ -72,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
     mapController = mapcontroller;
     _setMapStyle();
     _loadMarkers();
+    checkIfDeveloper();
   }
 
   void _setMapStyle() {
@@ -337,6 +347,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text('Delete'),
               ),
             TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                reportMarker(markerId);
+              },
+              child: Text('Report'),
+            ),
+            TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text('Cancel'),
             ),
@@ -361,6 +378,36 @@ class _HomeScreenState extends State<HomeScreen> {
       print('Error fetching user ID: $e');
     }
     return null;
+  }
+
+  Future<void> reportMarker(MarkerId markerId) async {
+    var firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null) {
+      try {
+        String? userId = await getUserIdForMarker(markerId);
+        if (userId == null) {
+          print('User ID not found for marker: $markerId');
+          return;
+        }
+
+        DocumentSnapshot markerDocument = await FirebaseFirestore.instance
+            .collection('markers')
+            .doc(markerId.value)
+            .get();
+        Map<String, dynamic> markerData = markerDocument.data() as Map<String, dynamic>;
+
+        await FirebaseFirestore.instance.collection('reports').add({
+          'reportedMarkerId': markerId.value,
+          'markerTitle': markerData['title'],
+          'markerSnippet': markerData['snippet'],
+          'reportedBy': firebaseUser.uid,
+          'reportedUserId': userId,
+        });
+        print('Report added successfully');
+      } catch (e) {
+        print('An error occurred while reporting the marker: $e');
+      }
+    }
   }
 
   Future<void> deleteMarker(MarkerId markerId) async {
@@ -430,6 +477,55 @@ class _HomeScreenState extends State<HomeScreen> {
     return loadedMarkers;
   }
 
+  Future<void> checkIfDeveloper() async {
+    var firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null && developerIds.contains(firebaseUser.uid)) {
+      setState(() {
+        isDeveloper = true;
+      });
+      await fetchReports();
+    }
+  }
+
+  Future<void> fetchReports() async {
+    CollectionReference reportsCollection = FirebaseFirestore.instance.collection('reports');
+    QuerySnapshot querySnapshot = await reportsCollection.get();
+    List<Map<String, dynamic>> loadedReports = [];
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      final data = doc.data() as Map<String, dynamic>;
+      loadedReports.add(data);
+    }
+    setState(() {
+      reports = loadedReports;
+    });
+
+    showReportsDialog();
+  }
+
+  void showReportsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Reports'),
+        content: SingleChildScrollView(
+          child: Column(
+            children: reports.map((report) {
+              return ListTile(
+                title: Text('Marker Title: ${report['markerTitle']}\nMarker Description: ${report['markerSnippet']}'),
+              );
+            }).toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = ThemeData(
@@ -482,9 +578,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     padding: const EdgeInsets.all(2),
                                     child: AspectRatio(
                                       aspectRatio: 1,
-                                      child: Image.asset(
-                                        isDark ? 'assets/slugmap1BLACK.png' : 'assets/slug1.jpg',
-                                      ),
+                                      child: Image.asset('assets/slug1.jpg'),
                                     ),
                                   ),
                                 ],

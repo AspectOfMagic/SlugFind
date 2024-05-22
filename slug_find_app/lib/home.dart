@@ -100,19 +100,26 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _markMarker(MarkerId id, Marker marker) {
+  void _markMarker(MarkerId id, Marker marker) async {
     if (markedId != const MarkerId('empty')) {
       Marker? selectedMarker = markers[markedId];
-      if (selectedMarker != null) {
-        markers[markedId] = selectedMarker.copyWith(
-          iconParam: BitmapDescriptor.defaultMarker,
-        );
+      if (selectedMarker != null) {       
+        String? userId = await getUserIdForMarker(markedId);
+        bool sameUser = FirebaseAuth.instance.currentUser?.uid == userId;
+        if (sameUser) {
+          markers[markedId] = selectedMarker.copyWith(
+            iconParam: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+          );
+        } else {
+          markers[markedId] = selectedMarker.copyWith(
+            iconParam: BitmapDescriptor.defaultMarker,
+          );
+        }
       }
     }
 
     Marker updatedMarker = marker.copyWith(
-      iconParam:
-          BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      iconParam: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
     );
 
     markedId = id;

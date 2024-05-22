@@ -33,10 +33,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showGlobalMarkers = false;
   final List<String> developerIds = [
     'QEUR6jvclhQUysCKuYGGSCxckLi2',
-    'developerUid2',
-    'developerUid3',
-    'developerUid4',
-    'developerUid5'
+    'QcKnTZbGjBX1zdNejcqtHSxGtyl2',
+    '8BheQrwzqEakcOVroZ82AfM9Yzp2',
+    'Dcxrvm2X4AQ3I6tDcjip9pNzcTv2',
+    'Sw2b0lZT9LOzqKL8nDnxI5mJR733'
   ];
   bool isDeveloper = false;
   List<Map<String, dynamic>> reports = [];

@@ -306,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (result != null) {
         final String title = result['title'] ?? 'Default Title';
         final String snippet = result['snippet'] ?? 'No additional info';
-        final String floor = result['floor'] ?? 'One';
+        final String floor = result['floor'] ?? '1';
         final String newSnippet = 'Info: $snippet\nFloor: $floor';
         final MarkerId markerId = MarkerId(latlang.toString());
         bool markerExists = markers.values.any((marker) =>

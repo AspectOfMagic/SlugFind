@@ -163,14 +163,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return false;
   }
 
-  /*
-  void _sendtoServer(String input) async {
+  /*void _sendtoServer(String input) async {
     var data = await putMarker(Uri.http('127.0.0.1:8090', 'marker'),
         jsonEncode({'user-input': input}));
     var decodedData = jsonDecode(data);
     print(decodedData['message']);
-  }
-  */
+  }*/
 
   void _updateLocationFromSearch(String search) async {
     try {

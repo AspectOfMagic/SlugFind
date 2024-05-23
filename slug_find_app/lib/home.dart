@@ -40,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
   bool isDeveloper = false;
   List<Map<String, dynamic>> reports = [];
+  final List<String> listFloorNums = <String>['1', '2', '3', '4', '5'];
 
   @override
   void initState() {
@@ -238,6 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) {
         String title = '';
         String snippet = '';
+        String floor = listFloorNums.first;
 
         return AlertDialog(
           title: const Text('Marker info'),
@@ -258,6 +260,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                   decoration: InputDecoration(hintText: 'Additional info'),
                 ),
+                const SizedBox(height: 16.0),
+                const Text('Floor Number:'),
+                DropdownMenu<String>(
+                  initialSelection: listFloorNums.first,
+                  onSelected: (value) {
+                    floor = value!;
+                  },      
+                  dropdownMenuEntries: listFloorNums.map<DropdownMenuEntry<String>>((String value) {
+                    return DropdownMenuEntry<String>(value: value, label: value);
+                  }).toList(),
+                ),
               ],
             ),
           ),
@@ -270,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop({'title': title, 'snippet': snippet});
+                Navigator.of(context).pop({'title': title, 'snippet': snippet, 'floor': floor});
               },
               child: Text('Submit'),
             ),
@@ -295,6 +308,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (result != null) {
         final String title = result['title'] ?? 'Default Title';
         final String snippet = result['snippet'] ?? 'No additional info';
+        final String floor = result['floor'] ?? 'One';
+        final String newSnippet = 'Info: $snippet\nFloor: $floor';
         final MarkerId markerId = MarkerId(latlang.toString());
         bool markerExists = markers.values.any((marker) =>
             (marker.infoWindow.title?.toLowerCase() ?? '') ==
@@ -307,17 +322,17 @@ class _HomeScreenState extends State<HomeScreen> {
             position: latlang,
             infoWindow: InfoWindow(
               title: title,
-              snippet: snippet,
+              snippet: newSnippet,
             ),
-            icon: BitmapDescriptor.defaultMarker,
-            onTap: () => _showMarkerDetails(markerId, title, snippet),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            onTap: () => _showMarkerDetails(markerId, title, newSnippet),
           );
 
           setState(() {
             markers[markerId] = marker;
           });
 
-          saveMarker(latlang, title, snippet);
+          saveMarker(latlang, title, newSnippet);
         } else {
           _showDialog(context,
               "A marker with that name already exists. Please try again.");

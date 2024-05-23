@@ -86,9 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _setMapStyle() {
-    if (isDark && _darkMapStyle != null) {
+    if (isDark) {
       mapController.setMapStyle(_darkMapStyle);
-    } else if (!isDark && _lightMapStyle != null) {
+    } else if (!isDark) {
       mapController.setMapStyle(_lightMapStyle);
     }
   }

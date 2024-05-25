@@ -503,13 +503,34 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchReports() async {
     CollectionReference reportsCollection = FirebaseFirestore.instance.collection('reports');
     QuerySnapshot querySnapshot = await reportsCollection.get();
-    List<Map<String, dynamic>> loadedReports = [];
+    Map<String, int> reportCounts = {};
+
     for (QueryDocumentSnapshot doc in querySnapshot.docs) {
       final data = doc.data() as Map<String, dynamic>;
-      loadedReports.add(data);
+      final markerId = data['reportedMarkerId'];
+      if (reportCounts.containsKey(markerId)) {
+        reportCounts[markerId] = reportCounts[markerId]! + 1;
+      } else {
+        reportCounts[markerId] = 1;
+      }
     }
+
+    List<Map<String, dynamic>> aggregatedReports = [];
+    for (String markerId in reportCounts.keys) {
+      final query = await FirebaseFirestore.instance.collection('markers').doc(markerId).get();
+      if (query.exists) {
+        final markerData = query.data() as Map<String, dynamic>;
+        aggregatedReports.add({
+          'markerId': markerId,
+          'markerTitle': markerData['title'],
+          'markerSnippet': markerData['snippet'],
+          'count': reportCounts[markerId],
+        });
+      }
+    }
+
     setState(() {
-      reports = loadedReports;
+      reports = aggregatedReports;
     });
 
     showReportsDialog();
@@ -524,7 +545,9 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: reports.map((report) {
               return ListTile(
-                title: Text('Marker Title: ${report['markerTitle']}\nMarker Description: ${report['markerSnippet']}'),
+                title: Text(report['markerTitle']),
+                subtitle: Text(
+                    'Description: ${report['markerSnippet']}\nReports: ${report['count']}'),
               );
             }).toList(),
           ),

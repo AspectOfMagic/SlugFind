@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double currentZoom = 15;
   MarkerId markedId = const MarkerId('empty');
   bool _showGlobalMarkers = false;
+  int selectedFloorLevel = 0;
   final List<String> developerIds = [
     'QEUR6jvclhQUysCKuYGGSCxckLi2',
     'QcKnTZbGjBX1zdNejcqtHSxGtyl2',
@@ -40,13 +41,13 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
   bool isDeveloper = false;
   List<Map<String, dynamic>> reports = [];
-  final List<String> listFloorNums = <String>['1', '2', '3', '4', '5'];
+  final List<String> listFloorNums = <String>['B', '1', '2', '3', '4', '5'];
 
   @override
   void initState() {
     super.initState();
     _loadMapStyles();
-    loadMarkers(_showGlobalMarkers).then((loadedMarkers) {
+    loadMarkers(_showGlobalMarkers, selectedFloorLevel).then((loadedMarkers) {
       setState(() {
         markers = loadedMarkers;
         allSuggestions = markers.values
@@ -63,7 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadMarkers() async {
-    final loadedMarkers = await loadMarkers(_showGlobalMarkers);
+    final loadedMarkers =
+        await loadMarkers(_showGlobalMarkers, selectedFloorLevel);
     setState(() {
       markers = loadedMarkers;
       allSuggestions = markers.values
@@ -114,12 +116,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void _markMarker(MarkerId id, Marker marker) async {
     if (markedId != const MarkerId('empty')) {
       Marker? selectedMarker = markers[markedId];
-      if (selectedMarker != null) {       
+      if (selectedMarker != null) {
         String? userId = await getUserIdForMarker(markedId);
         bool sameUser = FirebaseAuth.instance.currentUser?.uid == userId;
         if (sameUser) {
           markers[markedId] = selectedMarker.copyWith(
-            iconParam: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            iconParam:
+                BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
           );
         } else {
           markers[markedId] = selectedMarker.copyWith(
@@ -130,7 +133,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     Marker updatedMarker = marker.copyWith(
-      iconParam: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      iconParam:
+          BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
     );
 
     markedId = id;
@@ -264,9 +268,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   initialSelection: listFloorNums.first,
                   onSelected: (value) {
                     floor = value!;
-                  },      
-                  dropdownMenuEntries: listFloorNums.map<DropdownMenuEntry<String>>((String value) {
-                    return DropdownMenuEntry<String>(value: value, label: value);
+                  },
+                  dropdownMenuEntries: listFloorNums
+                      .map<DropdownMenuEntry<String>>((String value) {
+                    return DropdownMenuEntry<String>(
+                        value: value, label: value);
                   }).toList(),
                 ),
               ],
@@ -281,7 +287,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop({'title': title, 'snippet': snippet, 'floor': floor});
+                Navigator.of(context)
+                    .pop({'title': title, 'snippet': snippet, 'floor': floor});
               },
               child: Text('Submit'),
             ),
@@ -322,7 +329,8 @@ class _HomeScreenState extends State<HomeScreen> {
               title: title,
               snippet: newSnippet,
             ),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            icon:
+                BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
             onTap: () => _showMarkerDetails(markerId, title, newSnippet),
           );
 
@@ -330,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
             markers[markerId] = marker;
           });
 
-          saveMarker(latlang, title, newSnippet);
+          saveMarker(latlang, title, newSnippet, floor);
         } else {
           _showDialog(context,
               "A marker with that name already exists. Please try again.");
@@ -407,7 +415,8 @@ class _HomeScreenState extends State<HomeScreen> {
             .collection('markers')
             .doc(markerId.value)
             .get();
-        Map<String, dynamic> markerData = markerDocument.data() as Map<String, dynamic>;
+        Map<String, dynamic> markerData =
+            markerDocument.data() as Map<String, dynamic>;
 
         await FirebaseFirestore.instance.collection('reports').add({
           'reportedMarkerId': markerId.value,
@@ -433,7 +442,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> saveMarker(LatLng position, String title, String snippet) async {
+  Future<void> saveMarker(
+      LatLng position, String title, String snippet, String floor) async {
     var firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
       CollectionReference markers =
@@ -444,9 +454,10 @@ class _HomeScreenState extends State<HomeScreen> {
         'title': title,
         'snippet': snippet,
         'userId': firebaseUser.uid,
+        'floor': floor, // Add the floor parameter
       });
     }
-    loadMarkers(_showGlobalMarkers).then((loadedMarkers) {
+    loadMarkers(_showGlobalMarkers, selectedFloorLevel).then((loadedMarkers) {
       setState(() {
         markers = loadedMarkers;
         allSuggestions = markers.values
@@ -457,13 +468,22 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<Map<MarkerId, Marker>> loadMarkers(bool isGlobal) async {
+  Future<Map<MarkerId, Marker>> loadMarkers(
+      bool isGlobal, int selectedFloorLevel) async {
     CollectionReference markersCollection =
         FirebaseFirestore.instance.collection('markers');
     Query query = isGlobal
         ? markersCollection
         : markersCollection.where('userId',
             isEqualTo: FirebaseAuth.instance.currentUser?.uid);
+
+    // Filter markers based on the selected floor level
+    if (selectedFloorLevel != 0) {
+      String floorValue =
+          selectedFloorLevel == 1 ? 'B' : (selectedFloorLevel - 1).toString();
+      query = query.where('floor', isEqualTo: floorValue);
+    }
+
     QuerySnapshot querySnapshot = await query.get();
     Map<MarkerId, Marker> loadedMarkers = {};
     for (QueryDocumentSnapshot doc in querySnapshot.docs) {
@@ -501,7 +521,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchReports() async {
-    CollectionReference reportsCollection = FirebaseFirestore.instance.collection('reports');
+    CollectionReference reportsCollection =
+        FirebaseFirestore.instance.collection('reports');
     QuerySnapshot querySnapshot = await reportsCollection.get();
     Map<String, int> reportCounts = {};
 
@@ -517,7 +538,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     List<Map<String, dynamic>> aggregatedReports = [];
     for (String markerId in reportCounts.keys) {
-      final query = await FirebaseFirestore.instance.collection('markers').doc(markerId).get();
+      final query = await FirebaseFirestore.instance
+          .collection('markers')
+          .doc(markerId)
+          .get();
       if (query.exists) {
         final markerData = query.data() as Map<String, dynamic>;
         aggregatedReports.add({
@@ -573,6 +597,8 @@ class _HomeScreenState extends State<HomeScreen> {
             appBar: AppBar(
               title: const Text('SlugFind'),
               actions: [
+                // Add the floor level buttons
+
                 Row(
                   children: [
                     Text(_showGlobalMarkers ? 'Global' : 'Local'),
@@ -663,95 +689,133 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: SearchAnchor(
-                      searchController: controller,
-                      viewTrailing: [
-                        IconButton(
-                            onPressed: () {
-                              searchHistory.add(controller.text);
-                              searchHistory =
-                                  searchHistory.reversed.toSet().toList();
-                              controller.closeView(controller.text);
-                              if (!_checkMarkers(controller.text)) {
-                                _updateLocationFromSearch(controller.text);
-                              }
-                            },
-                            icon: const Icon(Icons.search)),
-                        IconButton(
-                            onPressed: () {
-                              controller.clear();
-                            },
-                            icon: const Icon(Icons.clear))
+                  child: Column(children: [
+                    SearchAnchor(
+                        searchController: controller,
+                        viewTrailing: [
+                          IconButton(
+                              onPressed: () {
+                                searchHistory.add(controller.text);
+                                searchHistory =
+                                    searchHistory.reversed.toSet().toList();
+                                controller.closeView(controller.text);
+                                if (!_checkMarkers(controller.text)) {
+                                  _updateLocationFromSearch(controller.text);
+                                }
+                              },
+                              icon: const Icon(Icons.search)),
+                          IconButton(
+                              onPressed: () {
+                                controller.clear();
+                              },
+                              icon: const Icon(Icons.clear))
+                        ],
+                        builder: (BuildContext context,
+                            SearchController controller) {
+                          return SearchBar(
+                              controller: controller,
+                              padding:
+                                  const MaterialStatePropertyAll<EdgeInsets>(
+                                EdgeInsets.symmetric(horizontal: 16.0),
+                              ),
+                              onTap: () {
+                                controller.openView();
+                              },
+                              onChanged: (_) {
+                                controller.openView();
+                              },
+                              leading: const Icon(Icons.search),
+                              trailing: <Widget>[
+                                Tooltip(
+                                    message: 'Change Brightness Mode',
+                                    child: IconButton(
+                                      isSelected: isDark,
+                                      onPressed: () {
+                                        setState(() {
+                                          isDark = !isDark;
+                                          _setMapStyle();
+                                        });
+                                      },
+                                      icon: const Icon(Icons.wb_sunny_outlined),
+                                      selectedIcon: const Icon(
+                                          Icons.brightness_2_outlined),
+                                    ))
+                              ]);
+                        },
+                        suggestionsBuilder: (BuildContext context,
+                            SearchController controller) {
+                          List<String> filteredSuggestions = [];
+                          String query = controller.text.toLowerCase();
+                          if (query.isNotEmpty) {
+                            filteredSuggestions = allSuggestions
+                                .where((suggestion) =>
+                                    suggestion.toLowerCase().contains(query))
+                                .toList();
+                            return List<ListTile>.generate(
+                                filteredSuggestions.length, (index) {
+                              final item = filteredSuggestions[index];
+                              return ListTile(
+                                  title: Text(item),
+                                  onTap: () {
+                                    searchHistory.add(item);
+                                    searchHistory =
+                                        searchHistory.reversed.toSet().toList();
+                                    controller.closeView(item);
+                                    _checkMarkers(item);
+                                  });
+                            });
+                          } else {
+                            return List<ListTile>.generate(searchHistory.length,
+                                (index) {
+                              final item = searchHistory[index];
+                              return ListTile(
+                                  title: Text(item),
+                                  onTap: () {
+                                    searchHistory.add(item);
+                                    searchHistory =
+                                        searchHistory.reversed.toSet().toList();
+                                    controller.closeView(item);
+                                    _checkMarkers(item);
+                                  });
+                            });
+                          }
+                        }),
+                    const SizedBox(height: 8.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ToggleButtons(
+                          onPressed: (int index) {
+                            setState(() {
+                              selectedFloorLevel = index;
+                              _loadMarkers();
+                            });
+                          },
+                          isSelected: List.generate(
+                              7, (index) => index == selectedFloorLevel),
+                          constraints: const BoxConstraints(
+                            minWidth: 30.0,
+                            minHeight: 30.0,
+                          ),
+                          color: Colors.black,
+                          selectedColor: Colors.white,
+                          fillColor: Colors.blue,
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderColor: Colors.grey,
+                          selectedBorderColor: Colors.blue,
+                          children: const [
+                            Text('All'),
+                            Text('B'),
+                            Text('1'),
+                            Text('2'),
+                            Text('3'),
+                            Text('4'),
+                            Text('5'),
+                          ],
+                        ),
                       ],
-                      builder:
-                          (BuildContext context, SearchController controller) {
-                        return SearchBar(
-                            controller: controller,
-                            padding: const MaterialStatePropertyAll<EdgeInsets>(
-                              EdgeInsets.symmetric(horizontal: 16.0),
-                            ),
-                            onTap: () {
-                              controller.openView();
-                            },
-                            onChanged: (_) {
-                              controller.openView();
-                            },
-                            leading: const Icon(Icons.search),
-                            trailing: <Widget>[
-                              Tooltip(
-                                  message: 'Change Brightness Mode',
-                                  child: IconButton(
-                                    isSelected: isDark,
-                                    onPressed: () {
-                                      setState(() {
-                                        isDark = !isDark;
-                                        _setMapStyle();
-                                      });
-                                    },
-                                    icon: const Icon(Icons.wb_sunny_outlined),
-                                    selectedIcon:
-                                        const Icon(Icons.brightness_2_outlined),
-                                  ))
-                            ]);
-                      },
-                      suggestionsBuilder:
-                          (BuildContext context, SearchController controller) {
-                        List<String> filteredSuggestions = [];
-                        String query = controller.text.toLowerCase();
-                        if (query.isNotEmpty) {
-                          filteredSuggestions = allSuggestions
-                              .where((suggestion) =>
-                                  suggestion.toLowerCase().contains(query))
-                              .toList();
-                          return List<ListTile>.generate(
-                              filteredSuggestions.length, (index) {
-                            final item = filteredSuggestions[index];
-                            return ListTile(
-                                title: Text(item),
-                                onTap: () {
-                                  searchHistory.add(item);
-                                  searchHistory =
-                                      searchHistory.reversed.toSet().toList();
-                                  controller.closeView(item);
-                                  _checkMarkers(item);
-                                });
-                          });
-                        } else {
-                          return List<ListTile>.generate(searchHistory.length,
-                              (index) {
-                            final item = searchHistory[index];
-                            return ListTile(
-                                title: Text(item),
-                                onTap: () {
-                                  searchHistory.add(item);
-                                  searchHistory =
-                                      searchHistory.reversed.toSet().toList();
-                                  controller.closeView(item);
-                                  _checkMarkers(item);
-                                });
-                          });
-                        }
-                      }))
+                    ),
+                  ]))
             ])));
   }
 }

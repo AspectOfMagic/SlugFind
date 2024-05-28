@@ -370,7 +370,7 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                reportMarker(markerId);
+                _showReportDialog(markerId);
               },
               child: Text('Report'),
             ),
@@ -383,6 +383,47 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     });
   }
+
+  Future<void> _showReportDialog(MarkerId markerId) async {
+    TextEditingController reasonController = TextEditingController();
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Report Marker'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Enter the reason for reporting this marker:'),
+                TextField(
+                  controller: reasonController,
+                  decoration: InputDecoration(hintText: 'Reason'),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Send'),
+              onPressed: () {
+                String reason = reasonController.text;
+                Navigator.of(context).pop();
+                reportMarker(markerId, reason);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   Future<String?> getUserIdForMarker(MarkerId markerId) async {
     try {
@@ -401,7 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return null;
   }
 
-  Future<void> reportMarker(MarkerId markerId) async {
+  Future<void> reportMarker(MarkerId markerId, String reason) async {
     var firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
       try {
@@ -415,8 +456,7 @@ class _HomeScreenState extends State<HomeScreen> {
             .collection('markers')
             .doc(markerId.value)
             .get();
-        Map<String, dynamic> markerData =
-            markerDocument.data() as Map<String, dynamic>;
+        Map<String, dynamic> markerData = markerDocument.data() as Map<String, dynamic>;
 
         await FirebaseFirestore.instance.collection('reports').add({
           'reportedMarkerId': markerId.value,
@@ -424,6 +464,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'markerSnippet': markerData['snippet'],
           'reportedBy': firebaseUser.uid,
           'reportedUserId': userId,
+          'reason': reason,
         });
         print('Report added successfully');
       } catch (e) {

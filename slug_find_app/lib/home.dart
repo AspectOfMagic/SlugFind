@@ -4,8 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'request.dart';
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -74,11 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
           .toList();
     });
   }
-
-  // Future<void> _loadMapStyles() async {
-  //   _darkMapStyle = await rootBundle.loadString('assets/dark_map_style.json');
-  //   _lightMapStyle = await rootBundle.loadString('assets/light_map_style.json');
-  // }
 
   void _onMapCreated(GoogleMapController mapcontroller) {
     mapController = mapcontroller;
@@ -166,13 +159,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return false;
   }
-
-  /*void _sendtoServer(String input) async {
-    var data = await putMarker(Uri.http('127.0.0.1:8090', 'marker'),
-        jsonEncode({'user-input': input}));
-    var decodedData = jsonDecode(data);
-    print(decodedData['message']);
-  }*/
 
   void _updateLocationFromSearch(String search) async {
     try {
@@ -598,7 +584,9 @@ class _HomeScreenState extends State<HomeScreen> {
       reports = aggregatedReports;
     });
 
-    showReportsDialog();
+    if (reports.isNotEmpty) {
+      showReportsDialog();
+    }
   }
 
   void showReportsDialog() {

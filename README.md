@@ -1,22 +1,71 @@
 # SlugFind
-A community based Classroom Locator that allows students to help other students find their classes, discussion sessions, and lab sessions by pinpointing exact room locations on the UCSC map with a short description.
+This is a team project for CSE 115A at UCSC. Links to reports here.
 
-### How to place a Marker
-Once you find the location on the map where you want to place a marker, you will then long press on the exact spot and a popup window will open. You will then type in the name of the classroom and any additional information then click submit.
+##  Team
 
-### Search Bar
-The user can use the search bar to search markers and current Google Map locations. Markers will show up first in the search bar and shows previews for markers.
+- Product Owner: Jason Wu
+- Developer: Cadan Crowell
+- Developer: Christian Perez
+- Developer: Hasan Turkoz
+- Developer: Timothy Park
 
-### Local vs Global Markers
-On the top left, there is a switch which show only the markers the certain user has placed (local) and the other side of the switch is the global markers where every marker that anyone places is visible.
+## Description
+A community based Classroom Locator that allows students to help other students find their classes, discussion sessions, and lab sessions by pinpointing exact room locations on the UCSC map with a short description. Available on Android & iOS.
 
-### Boundaries
-Through the search bar and placing markers, both will be only in the UC Santa Cruz campus, nothing outside of it.
+## Project Tools
+- Flutter
+- Firebase
+- Google Maps API
+- Dart Programming Language
+- Android SDK
+- iOS SDK
 
-### Report buttons on markers
-If there is a marker that is inaccurately showing a classroom, a user can click the report button on the marker and an admin will manually check the marker and delete it if necessary.
+## Features
+Place Markers
+- *Once you find the location on the map where you want to place a marker, you will then long press on the exact spot and a popup window will open. You will then type in the name of the classroom and any additional information then click submit.*
+Search Bar
+- *The user can use the search bar to search markers and current Google Map locations. Markers will show up first in the search bar and shows previews for markers.*
+Local vs Global Markers*
+- *On the top left, there is a switch which show only the markers the certain user has placed (local) and the other side of the switch is the global markers where every marker that anyone places is visible.*
+Location Bounds
+- *Through the search bar and placing markers, both will be only in the UC Santa Cruz campus, nothing outside of it.*
+Report Innacurate Markers
+- *If there is a marker that is inaccurately showing a classroom, a user can click the report button on the marker and an admin will manually check the marker and delete it if necessary.*
+Light & Dark Mode
+- *On the right part of the search bar, there is a button that a user can click if they want to make the app light or dark mode.* 
 
-### Light and Dark Mode
-On the right part of the search bar, there is a button that a user can click if they want to make the app light or dark mode. 
+## Installation
 
-### 
+### Prerequisites
+Software & Tools
+- Flutter (3.19.6 or higher)
+- Android SDK (34 or higher)
+- iOS (version)
+
+*Simulators used for this project:* 
+- *Google Pixel 7* 
+- *Google Pixel 8*
+
+### Steps
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/AspectOfMagic/SlugFind
+    ```
+2. Navigate to the project directory:
+    ```bash
+    cd SlugFind/slug_find_app
+    ```
+3. Install dependencies:
+    ```bash
+    flutter pub get
+    ```
+4. Update dependencies:
+    ```bash
+    flutter pub outdated
+    ```
+
+### Running the Project
+To run SlugFind, use:
+```bash
+    flutter run
+```

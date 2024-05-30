@@ -690,7 +690,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       zoom: currentZoom,
                     ),
                     zoomControlsEnabled: false,
-                    compassEnabled: true,
+                    myLocationButtonEnabled: false,
+                    compassEnabled: false,
+                    mapToolbarEnabled: false,
                     tiltGesturesEnabled: false,
                     onLongPress: (latlang) {
                       _addMarkerLongPressed(latlang);

@@ -1,6 +1,20 @@
 # SlugFind
 This is a team project for CSE 115A at UCSC. Links to reports here.
 
+## Deliverables
+
+#### Sprint Plans
+- [Sprint 1 Plan]()
+- [Sprint 2 Plan](docs/Sprint-2-Plan.pdf)
+- [Sprint 3 Plan](docs/Sprint-3-Plan.pdf)
+- [Sprint 4 Plan](docs/Sprint-4-Plan.pdf)
+
+#### Sprint Reports
+- [Sprint 1 Report](docs/Sprint-1-Report.pdf)
+- [Sprint 2 Report](docs/Sprint-2-Report.pdf)
+- [Sprint 3 Report](docs/Sprint-3-Report.pdf)
+- [Sprint 4 Report]()
+
 ##  Team
 
 - Product Owner: Jason Wu
@@ -67,5 +81,5 @@ Software & Tools
 ### Running the Project
 To run SlugFind, use:
 ```bash
-    flutter run
+flutter run
 ```

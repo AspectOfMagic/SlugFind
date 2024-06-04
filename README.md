@@ -1,10 +1,23 @@
 # SlugFind
 This is a team project for CSE 115A at UCSC. Links to reports here.
 
+## Description
+A community based Classroom Locator that allows students to help other students find their classes, discussion sessions, and lab sessions by pinpointing exact room locations on the UCSC map with a short description. Available on Android & iOS.
+
+##  Team
+- Product Owner: Jason Wu
+- Developer: Cadan Crowell
+- Developer: Christian Perez
+- Developer: Hasan Turkoz
+- Developer: Timothy Park
+
 ## Deliverables
+#### Release Summary & Test Plan & Report
+- [Release Summary]()
+- [Test Plan & Report]()
 
 #### Sprint Plans
-- [Sprint 1 Plan]()
+- [Sprint 1 Plan](docs/Sprint-1-Plan.pdf)
 - [Sprint 2 Plan](docs/Sprint-2-Plan.pdf)
 - [Sprint 3 Plan](docs/Sprint-3-Plan.pdf)
 - [Sprint 4 Plan](docs/Sprint-4-Plan.pdf)
@@ -13,18 +26,7 @@ This is a team project for CSE 115A at UCSC. Links to reports here.
 - [Sprint 1 Report](docs/Sprint-1-Report.pdf)
 - [Sprint 2 Report](docs/Sprint-2-Report.pdf)
 - [Sprint 3 Report](docs/Sprint-3-Report.pdf)
-- [Sprint 4 Report]()
-
-##  Team
-
-- Product Owner: Jason Wu
-- Developer: Cadan Crowell
-- Developer: Christian Perez
-- Developer: Hasan Turkoz
-- Developer: Timothy Park
-
-## Description
-A community based Classroom Locator that allows students to help other students find their classes, discussion sessions, and lab sessions by pinpointing exact room locations on the UCSC map with a short description. Available on Android & iOS.
+- [Sprint 4 Report](docs/Sprint-4-Report.pdf)
 
 ## Project Tools
 - Flutter
@@ -54,11 +56,12 @@ On the right part of the search bar, there is a button that a user can click if 
 Software & Tools
 - Flutter (3.19.6 or higher)
 - Android SDK (34 or higher)
-- iOS (version)
+- iOS (17.5 or higher)
 
 *Simulators used for this project:* 
 - *Google Pixel 7* 
 - *Google Pixel 8*
+- *iPhone 15*
 
 ### Steps
 1. Clone the repository:

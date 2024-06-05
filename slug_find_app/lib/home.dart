@@ -44,15 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadMapStyles();
-    loadMarkers(_showGlobalMarkers, selectedFloorLevel).then((loadedMarkers) {
-      setState(() {
-        markers = loadedMarkers;
-        allSuggestions = markers.values
-            .map((marker) => marker.infoWindow.title)
-            .whereType<String>()
-            .toList();
-      });
-    });
+    _loadMarkers();
   }
 
   Future<void> _loadMapStyles() async {
@@ -62,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadMarkers() async {
     final loadedMarkers =
-        await loadMarkers(_showGlobalMarkers, selectedFloorLevel);
+        await _fetchMarkers(_showGlobalMarkers, selectedFloorLevel);
     setState(() {
       markers = loadedMarkers;
       allSuggestions = markers.values
@@ -76,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
     mapController = mapcontroller;
     _setMapStyle();
     _loadMarkers();
-    checkIfDeveloper();
+    _checkIfDeveloper();
   }
 
   void _setMapStyle() {
@@ -109,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (markedId != const MarkerId('empty')) {
       Marker? selectedMarker = markers[markedId];
       if (selectedMarker != null) {
-        String? userId = await getUserIdForMarker(markedId);
+        String? userId = await _getUserIDForMarker(markedId);
         bool sameUser = FirebaseAuth.instance.currentUser?.uid == userId;
         if (sameUser) {
           markers[markedId] = selectedMarker.copyWith(
@@ -323,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
             markers[markerId] = marker;
           });
 
-          saveMarker(latlang, title, newSnippet, floor);
+          _saveMarker(latlang, title, newSnippet, floor);
         } else {
           _showDialog(context,
               "A marker with that name already exists. Please try again.");
@@ -336,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showMarkerDetails(MarkerId markerId, String title, String snippet) {
-    getUserIdForMarker(markerId).then((userId) {
+    _getUserIDForMarker(markerId).then((userId) {
       bool canDelete = FirebaseAuth.instance.currentUser?.uid == userId;
       showDialog(
         context: context,
@@ -348,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  deleteMarker(markerId);
+                  _deleteMarker(markerId);
                 },
                 child: Text('Delete'),
               ),
@@ -400,7 +392,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 String reason = reasonController.text;
                 Navigator.of(context).pop();
-                reportMarker(markerId, reason);
+                _reportMarker(markerId, reason);
               },
             ),
           ],
@@ -409,7 +401,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<String?> getUserIdForMarker(MarkerId markerId) async {
+  Future<String?> _getUserIDForMarker(MarkerId markerId) async {
     try {
       DocumentSnapshot markerDocument = await FirebaseFirestore.instance
           .collection('markers')
@@ -426,11 +418,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return null;
   }
 
-  Future<void> reportMarker(MarkerId markerId, String reason) async {
+  Future<void> _reportMarker(MarkerId markerId, String reason) async {
     var firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
       try {
-        String? userId = await getUserIdForMarker(markerId);
+        String? userId = await _getUserIDForMarker(markerId);
         if (userId == null) {
           print('User ID not found for marker: $markerId');
           return;
@@ -458,7 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> deleteMarker(MarkerId markerId) async {
+  Future<void> _deleteMarker(MarkerId markerId) async {
     await FirebaseFirestore.instance
         .collection('markers')
         .doc(markerId.value)
@@ -468,7 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> saveMarker(
+  Future<void> _saveMarker(
       LatLng position, String title, String snippet, String floor) async {
     var firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
@@ -483,18 +475,10 @@ class _HomeScreenState extends State<HomeScreen> {
         'floor': floor, // Add the floor parameter
       });
     }
-    loadMarkers(_showGlobalMarkers, selectedFloorLevel).then((loadedMarkers) {
-      setState(() {
-        markers = loadedMarkers;
-        allSuggestions = markers.values
-            .map((marker) => marker.infoWindow.title)
-            .whereType<String>()
-            .toList();
-      });
-    });
+    _loadMarkers();
   }
 
-  Future<Map<MarkerId, Marker>> loadMarkers(
+  Future<Map<MarkerId, Marker>> _fetchMarkers(
       bool isGlobal, int selectedFloorLevel) async {
     CollectionReference markersCollection =
         FirebaseFirestore.instance.collection('markers');
@@ -536,17 +520,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return loadedMarkers;
   }
 
-  Future<void> checkIfDeveloper() async {
+  Future<void> _checkIfDeveloper() async {
     var firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser != null && developerIds.contains(firebaseUser.uid)) {
       setState(() {
         isDeveloper = true;
       });
-      await fetchReports();
+      await _fetchReports();
     }
   }
 
-  Future<void> fetchReports() async {
+  Future<void> _fetchReports() async {
     CollectionReference reportsCollection =
         FirebaseFirestore.instance.collection('reports');
     QuerySnapshot querySnapshot = await reportsCollection.get();
@@ -584,11 +568,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     if (reports.isNotEmpty) {
-      showReportsDialog();
+      _showReportsDialog();
     }
   }
 
-  void showReportsDialog() {
+  void _showReportsDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

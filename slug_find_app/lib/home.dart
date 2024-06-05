@@ -295,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final MarkerId markerId = MarkerId(latlang.toString());
         bool markerExists = markers.values.any((marker) =>
             (marker.infoWindow.title?.toLowerCase() ?? '') ==
-            (title?.toLowerCase() ?? ''));
+            (title.toLowerCase()));
 
         if (!markerExists) {
           Marker marker = Marker(
@@ -443,10 +443,10 @@ class _HomeScreenState extends State<HomeScreen> {
           'reportedUserId': userId,
           'reason': reason,
         });
-        print('Report added successfully');
       } catch (e) {
-        print('An error occurred while reporting the marker: $e');
-      }
+          _showDialog(context,
+              "Report submission failed. Please try again.");
+        }      
     }
   }
 

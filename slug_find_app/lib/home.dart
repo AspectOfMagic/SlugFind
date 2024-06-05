@@ -410,7 +410,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   Future<String?> getUserIdForMarker(MarkerId markerId) async {
     try {
       DocumentSnapshot markerDocument = await FirebaseFirestore.instance
@@ -442,7 +441,8 @@ class _HomeScreenState extends State<HomeScreen> {
             .collection('markers')
             .doc(markerId.value)
             .get();
-        Map<String, dynamic> markerData = markerDocument.data() as Map<String, dynamic>;
+        Map<String, dynamic> markerData =
+            markerDocument.data() as Map<String, dynamic>;
 
         await FirebaseFirestore.instance.collection('reports').add({
           'reportedMarkerId': markerId.value,

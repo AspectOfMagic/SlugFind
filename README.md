@@ -13,7 +13,7 @@ A community based Classroom Locator that allows students to help other students 
 
 ## Deliverables
 #### Release Summary & Test Plan & Report
-- [Release Summary]()
+- [Release Plan](docs/Release-Plan.pdf)
 - [Test Plan & Report]()
 
 #### Sprint Plans
@@ -42,7 +42,7 @@ Once you find the location on the map where you want to place a marker, you will
 #### Search Bar
 The user can use the search bar to search markers and current Google Map locations. Markers will show up first in the search bar and shows previews for markers.
 #### Local vs Global Markers
-On the top left, there is a switch which show only the markers the certain user has placed (local) and the other side of the switch is the global markers where every marker that anyone places is visible.
+On the top right, there is a switch which show only the markers the certain user has placed (local) and the other side of the switch is the global markers where every marker that anyone places is visible.
 #### Location Bounds
 Through the search bar and placing markers, both will be only in the UC Santa Cruz campus, nothing outside of it.
 #### Report Inaccurate Markers

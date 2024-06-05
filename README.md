@@ -15,7 +15,7 @@ A community based Classroom Locator that allows students to help other students 
 #### Release Plan, Team Working Agreement, Test Plan Report, & Release Summary
 - [Release Plan](docs/Release-Plan.pdf)
 - [Team Working Agreement](docs/Team-Working-Agreements.pdf)
-- [Test Plan & Report](docs/Test-Plan-and-Report.pdf)
+- [Test Plan & Report](docs/Test-Plan-Report.pdf)
 - [Release Summary](docs/Release-Summary.pdf)
 
 #### Sprint Plans

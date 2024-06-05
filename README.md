@@ -1,5 +1,5 @@
 # SlugFind
-This is a team project for CSE 115A at UCSC. Links to reports here.
+This is a team project for CSE 115A at UCSC.
 
 ## Description
 A community based Classroom Locator that allows students to help other students find their classes, discussion sessions, and lab sessions by pinpointing exact room locations on the UCSC map with a short description. Available on Android & iOS.
@@ -12,9 +12,10 @@ A community based Classroom Locator that allows students to help other students 
 - Developer: Timothy Park
 
 ## Deliverables
-#### Release Summary, Test Plan & Report, & Release Plan
+#### Release Plan, Team Working Agreement, Test Plan Report, & Release Summary
 - [Release Plan](docs/Release-Plan.pdf)
-- [Test Plan & Report]()
+- [Team Working Agreement](docs/Team-Working-Agreements.pdf)
+- [Test Plan & Report](docs/Test-Plan-and-Report.pdf)
 - [Release Summary](docs/Release-Summary.pdf)
 
 #### Sprint Plans

@@ -1,11 +1,10 @@
 # SlugFind
-This is a team project for CSE 115A at UCSC. Links to reports here.
 
 ## Description
 A community based Classroom Locator that allows students to help other students find their classes, discussion sessions, and lab sessions by pinpointing exact room locations on the UCSC map with a short description. Available on Android & iOS.
 
-##  Team
-- Product Owner: Jason Wu
+## Team
+- Product Owner/Developer: Jason Wu
 - Developer: Cadan Crowell
 - Developer: Christian Perez
 - Developer: Hasan Turkoz
@@ -30,12 +29,11 @@ A community based Classroom Locator that allows students to help other students 
 - [Sprint 4 Report](docs/Sprint-4-Report.pdf)
 
 ## Project Tools
-- Flutter
-- Firebase
+- Flutter SDK
 - Google Maps API
-- Dart Programming Language
-- Android SDK
-- iOS SDK
+- Firebase
+- Android Studio
+- Xcode
 
 ## Features
 #### Place Markers
@@ -56,8 +54,9 @@ On the right part of the search bar, there is a button that a user can click if 
 ### Prerequisites
 Software & Tools
 - Flutter (3.19.6 or higher)
-- Android SDK (34 or higher)
-- iOS (17.5 or higher)
+- Android Simulator (34 or higher)
+- iOS Simulator (17.5 or higher)
+- Google Maps API key
 
 *Simulators used for this project:* 
 - *Google Pixel 7* 

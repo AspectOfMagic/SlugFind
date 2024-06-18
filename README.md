@@ -11,9 +11,10 @@ A community based Classroom Locator that allows students to help other students 
 - Developer: Timothy Park
 
 ## Deliverables
-#### Release Summary, Test Plan & Report, & Release Plan
+#### Release Plan, Team Working Agreement, Test Plan Report, & Release Summary
 - [Release Plan](docs/Release-Plan.pdf)
-- [Test Plan & Report](docs/Test%20Plan%20and%20Report.pdf)
+- [Team Working Agreement](docs/Team-Working-Agreements.pdf)
+- [Test Plan & Report](docs/Test-Plan-and-Report.pdf)
 - [Release Summary](docs/Release-Summary.pdf)
 
 #### Sprint Plans

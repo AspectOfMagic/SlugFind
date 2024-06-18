@@ -58,7 +58,7 @@ Software & Tools
 - Android simulator (34 or higher)
 - iOS simulator (17.5 or higher)
 - Google Maps API key
-- Firebase Cloud Firestore
+- Cloud Firestore API key
 
 *Simulators used for this project:* 
 - *Google Pixel 7* 

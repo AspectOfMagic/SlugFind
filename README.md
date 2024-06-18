@@ -55,9 +55,10 @@ On the right part of the search bar, there is a button that a user can click if 
 ### Prerequisites
 Software & Tools
 - Flutter (3.19.6 or higher)
-- Android Simulator (34 or higher)
-- iOS Simulator (17.5 or higher)
+- Android simulator (34 or higher)
+- iOS simulator (17.5 or higher)
 - Google Maps API key
+- Firebase Cloud Firestore
 
 *Simulators used for this project:* 
 - *Google Pixel 7* 
